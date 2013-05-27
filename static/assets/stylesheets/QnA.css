@@ -23,8 +23,7 @@ h5 {
     padding: 10px;
     width: 100%;
     background-color: white;
-    border-radius: 3px;
-    box-shadow: -5px 6px #e5e5e5;
+    border: 1px rgba(128, 128, 128, 0.39) solid;
 }
 
 .vote {
@@ -57,12 +56,11 @@ h5 {
 
 .question, .answer, .edit-answer {
     float: left;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
     padding: 10px;
     width: 100%;
     background-color: white;
-    border-radius: 3px;
-    box-shadow: -5px 6px #e5e5e5;
+    border: 1px rgba(128, 128, 128, 0.39) solid;
 }
 
 .post {
