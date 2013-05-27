@@ -29,7 +29,7 @@ class index:
 
 class question_list:
     def GET(self):
-        Qs = list(db.select('question'))
+        Qs = list(db.select('question', order="update_time DESC"))
         for q in Qs: q['tags'] = q['tags'].split(',')
         return json.dumps({"questions": Qs, "pages": 10, "current_page": 5}, cls=CJsonEncoder)
 
@@ -49,7 +49,7 @@ class ask_question:
         dbvars = web.input()
         if not dbvars['title']:
             dbvars['title'] = 'ooops, no title'
-        Qid = db.insert('question', title=dbvars['title'], content = dbvars['content'], tags=dbvars['tags'], who='annoymous');
+        Qid = db.insert('question', title=dbvars['title'], content = dbvars['content'], tags=dbvars['tags'], who='annoymous')
         return json.dumps({'id': Qid})
 
 class answer_question:

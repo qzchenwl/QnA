@@ -104,6 +104,7 @@ function registerAll() {
     console.log("registerAll");
     $("#answer-edit").keyup(onAnswerInput);
     $("#ask-edit").keyup(onAskInput);
+    $("textarea.markdown").keyup(markdownInput);
 
     $("#ask-form").submit(function(e){
         e.preventDefault();
@@ -128,27 +129,27 @@ function registerAll() {
     });
 
     // allow tab for textarea
-    $("textarea").keydown(function(e) {
-    if(e.keyCode === 9) { // tab was pressed
-        // get caret position/selection
-        var start = this.selectionStart;
-        var end = this.selectionEnd;
+    // $("textarea").keydown(function(e) {
 
-        var $this = $(this);
-        var value = $this.val();
+    // if(e.keyCode === 9) { // tab was pressed
+    //     console.log(e);
+    //     // get caret position/selection
+    //     var start = this.selectionStart;
+    //     var end = this.selectionEnd;
 
-        // set textarea value to: text before caret + tab + text after caret
-        $this.val(value.substring(0, start)
-            + "\t"
-            + value.substring(end));
+    //     var value = $(this).val();
 
-        // put caret at right position again (add one for the tab)
-        this.selectionStart = this.selectionEnd = start + 1;
+    //     // set textarea value to: text before caret + tab + text after caret
+    //     $(this).val(value.substring(0, start)
+    //         + "\t"
+    //         + value.substring(end));
 
-        // prevent the focus lose
-        e.preventDefault();
-    }
-});
+    //     // put caret at right position again (add one for the tab)
+    //     this.selectionStart = this.selectionEnd = start + 1;
+
+    //     // prevent the focus lose
+    //     e.preventDefault();
+    // }});
 }
 // END register listeners
 
@@ -195,6 +196,19 @@ function convertAll() {
         });
     });
     highlightAll();
+    $(gist_embed());
+}
+
+function markdownInput() {
+    var markdown = $(this).val();
+    if (lastText == markdown) { return; }
+
+    var preview = $(this).siblings(".preview");
+    var html = converter.makeHtml(markdown);
+    preview.html(html);
+
+    preview.find("pre > code").each(function (i,e) { hljs.highlightBlock(e); });
+
     $(gist_embed());
 }
 

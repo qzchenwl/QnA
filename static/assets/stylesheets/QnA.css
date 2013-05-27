@@ -55,6 +55,7 @@ h5 {
 }
 
 .question, .answer, .edit-answer {
+    position: relative;
     float: left;
     margin-bottom: 30px;
     padding: 10px;
