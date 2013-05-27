@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>QnA</title>
+
+    <link rel="stylesheet" type="text/css" href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="http://softwaremaniacs.org/media/soft/highlight/styles/default.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.0.0.js"></script>
+    <script type="text/javascript" src="http://softwaremaniacs.org/playground/showdown-highlight/showdown.js"></script>
+    <script type="text/javascript" src="http://softwaremaniacs.org/media/soft/highlight/highlight.pack.js"></script>
+    <script type="text/javascript" src="http://tempojs.com/tempo.min.js"></script>
+
+    <link rel="stylesheet" media="screen" href="assets/stylesheets/QnA.css">
+    <script type="text/javascript" src="assets/javascripts/QnA.js"></script>
+    <script type="text/javascript" src="assets/javascripts/gist-embed.js"></script>
+
+</head>
+
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <ul class="nav">
+                    <li><a href="#">Home</a>
+                    </li>
+                    <li class="active"><a href="#">Question</a>
+                    </li>
+                    <li><a href="#">Link</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <ul class="nav nav-pills pull-left">
+            <li id="show-question-list" class="active"><a href="#">Questions</a>
+            </li>
+            <li><a href="#">Tags</a>
+            </li>
+            <li><a href="#">Unanswered</a>
+            </li>
+        </ul>
+        <a id="show-ask-page" class="btn btn-primary pull-left" href="#">Ask</a>
+
+        <div class="container">
+            <div class="row-fluid">
+                <div id="main" class="span10 content">
+
+                    <!-- PAGE: question list -->
+                    <div id="question-list">
+                        <div id="questions">
+                            <div class="question-summary" data="{{id}}" data-template style="display: none;">
+                                <div class="statscontainer pull-left">
+                                    <div class="vote">
+                                        <div class="votes">
+                                            <span class="vote-count-post"><strong>{{votes}}</strong></span>
+                                            <div class="votecount">votes</div>
+                                        </div>
+                                        <div class="answers label">
+                                            <span class="answer-count-post"><strong>{{answers}}</strong></span>
+                                            <div class="answercount">answers</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="summary pull-left">
+                                    <h5><a href="#" class="question-link" data="{{id}}">{{title}}</a></h5>
+                                    <div class="excerpt">{{content}}</div>
+                                    <div class="tags pull-left" data-template-for="tags"><a href="#" class="post-tag">{{.}}</a></div>
+                                    <div class="started pull-right">
+                                        <div class="userinfo">
+                                            <div class="user-action-time">{{when}}</div>
+                                            <div class="user-name">{{who}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pagination">
+                            <ul id="pagination">
+                                <li data-template class="{{ class }}"  style="display: none;"><a href="{{ href | default '#' }}">{{ text }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- PAGEend: question-list  -->
+
+                    <!-- PAGE: question -->
+                    <div id="question-page">
+                        <div id="question_answers" data-template style="display:none;">
+                            <h1><a class="question-link" href="#">{{ title }}</a></h1>
+                            <div class="question" data="{{ id }}">
+                                <div class="vote pull-left">
+                                    <div><a href="#"><i class="icon-arrow-up"></i></a></div>
+                                    <strong>{{ votes }}</strong>
+                                    <div><a href="#"><i class="icon-arrow-down"></i></a></div>
+                                </div>
+                                <div class="post pull-left">
+                                    <textarea class="markdown hide" readonly="true">{{ content }}</textarea>
+                                    <div class="preview"></div>
+                                    <div class="tags pull-left" data-template-for="tags"><a href="#" class=post-tag>{{.}}</a></div>
+                                    <div class="started pull-right">
+                                        <div class="userinfo">
+                                            <div class="user-action-time">{{ when }}</div>
+                                            <div class="user-name">{{ who }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- answer div -->
+                            <div class="edit-answer" data="{{ id }}">
+                                <form id="answer-form">
+
+                                    <div id="answer-preview" class="preview-pane"></div>
+                                    <input name="question_id" type="hidden" value="{{ id }}" />
+                                    <textarea id="answer-edit" name="content" class="edit-pane editor" placeholder="answer here"></textarea>
+
+                                    <input id="answer-submit" type="submit" class="btn btn-primary pull-right" value="Answer"/>
+                                </form>
+                            </div>
+                            <!-- edit answer -->
+
+                            <div class="answer" data-template-for="answers">
+                                <div class="vote pull-left">
+                                    <div><a href="#"><i class="icon-arrow-up"></i></a></div>
+                                    <strong>{{ votes }}</strong>
+                                    <div><a href="#"><i class="icon-arrow-down"></i></a></div>
+                                </div>
+                                <div class="post pull-left">
+                                    <textarea class="markdown hide" readonly="true">{{ content }}</textarea>
+                                    <div class="preview"></div>
+                                    <div class="started pull-right">
+                                        <div class="userinfo">
+                                            <div class="user-ation-time">{{ when }}</div>
+                                            <div class="user-name">{{ who }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- PAGEend: question -->
+
+                    <!-- PAGE: ask question -->
+                    <div id="ask-question">
+                        <form id="ask-form">
+                            <textarea id="ask-title" name="title" class="editor" rows="1" placeholder="title"></textarea>
+                            <div id="ask-preview" class="preview-pane"></div>
+                            <textarea id="ask-edit" name="content" class="edit-pane editor" placeholder="ask here"></textarea>
+                            <textarea id="ask-tags" name="tags" type="text" class="editor" rows="1" placeholder="tags e.g. mysql, java, web"></textarea>
+                            <input id="ask-submit" type="submit" class="btn btn-primary pull-right" value="Ask"/>
+                        </form>
+
+                        
+                    </div>
+
+                    <!-- PAGEend: ask question -->
+                    <!-- PAGE: new page here -->
+                    <div id="your page here" style="display:none;"></div>
+                    <!-- PAGEend: new page ends here -->
+                </div>
+
+                <div class="span2 sidebar">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

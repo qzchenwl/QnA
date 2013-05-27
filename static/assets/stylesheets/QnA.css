@@ -1,0 +1,142 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+    font-family: Arial, Liberation Sans, DejaVu Sans, sans-serif;
+    font-size: 13px;
+    background-color: #f5f5f5;
+}
+
+h5 {
+    margin: 0;
+}
+
+.content {
+}
+
+.sidebar {
+    background-color: #dceaf4;
+}
+
+.question-summary {
+    float: left;
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 100%;
+    background-color: white;
+    border-radius: 3px;
+    box-shadow: -5px 6px #e5e5e5;
+}
+
+.vote {
+    text-align: center;
+    background-color: #eee;
+    margin-top: 5px;
+}
+
+.summary {
+    margin-left: 10px;
+    width: 700px;
+    overflow: hidden;
+}
+
+#question-list {
+    display: block;
+}
+
+.tags a {
+    background-color: #E0EAF1;
+    border-bottom: 1px solid #b3cee1;
+    border-right: 1px solid #b3cee1;
+    padding: 3px 4px 3px 4px;
+    margin: 2px 2px 2px 0;
+    text-decoration: none;
+    font-size: 90%;
+    line-height: 2.4;
+    white-space: nowrap;
+}
+
+.question, .answer, .edit-answer {
+    float: left;
+    margin-bottom: 50px;
+    padding: 10px;
+    width: 100%;
+    background-color: white;
+    border-radius: 3px;
+    box-shadow: -5px 6px #e5e5e5;
+}
+
+.post {
+    margin-left: 10px;
+    width: 700px;
+    overflow: auto;
+}
+
+.post-menu a {
+    background-color: #e5e5e5;
+    padding: 1px;
+    color: gray;
+}
+
+.vote strong {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+code[class]:after {
+    content: 'highlight: ' attr(class);
+    display: block;
+    text-align: right;
+    font-size: smaller;
+    color: #CCC;
+    border-top: solid 1px;
+    padding-top: 0.5em;
+}
+
+code {
+    display: block;
+    padding: 0;
+    margin: 0;
+    background: #F0F0F0;
+}
+
+pre {
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    border-style: none;
+}
+
+.preview-pane {
+    width: 100%;
+    overflow: auto;
+    background-color: white;
+    margin-bottom: 10px;
+}
+
+.editor {
+    width: 100%;
+    padding: 4px 0 4px 0;
+}
+
+.edit-pane {
+    display:block;
+    height: 300px;
+    margin-bottom: 10px;
+}
+
+.preview li {
+    list-style-type: square;
+}
+
+
+/* override */
+.pagination {
+    margin: 0;
+}
+#question-page h1 {
+    margin: 0;
+}
+
+textarea {
+    border-radius: 0;
+}
