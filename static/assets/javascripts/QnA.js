@@ -5,7 +5,11 @@ var question_answers;
 
 // markdown and highlight
 var converter = new Showdown.converter;
-var lastText = undefined;
+var maxDelay = 3000; // ms
+var minDelay = 200;
+var processingTime = 0;
+var lastText;
+var converterTimer;
 
 function initTemplate() {
     questions = Tempo.prepare('questions');
@@ -102,9 +106,7 @@ function renderQuestionPage(data) {
 // START register listeners
 function registerAll() {
     console.log("registerAll");
-    $("#answer-edit").keyup(onAnswerInput);
-    $("#ask-edit").keyup(onAskInput);
-    $("textarea.markdown").keyup(markdownInput);
+    $("textarea.markdown").keyup(onMarkdownInput);
 
     $("#ask-form").submit(function(e){
         e.preventDefault();
@@ -116,7 +118,27 @@ function registerAll() {
         $.getJSON('/answer-question', $(this).serialize(), showQuestion);
     });
 
-    $("#show-ask-page").click(askQuestion);
+    $(".update-question").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/update-question', $(this).serialize(), showQuestion);
+    });
+
+    $(".update-answer").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/update-answer', $(this).serialize(), showQuestion);
+    });
+
+    $(".edit").click(function(){
+        $(this).parent().siblings(".post").find(".edit-pane, .update").show();
+        $(this).parent().siblings(".post").find(".edit-pane").focus();
+        return false;
+    })
+
+    $("#show-ask-page").click(function() {
+        askQuestion();
+        return false;
+    });
+
     $("#show-question-list").click(function(){
         listQuestions();
         return false;
@@ -129,27 +151,27 @@ function registerAll() {
     });
 
     // allow tab for textarea
-    // $("textarea").keydown(function(e) {
+    $("textarea").keydown(function(e) {
 
-    // if(e.keyCode === 9) { // tab was pressed
-    //     console.log(e);
-    //     // get caret position/selection
-    //     var start = this.selectionStart;
-    //     var end = this.selectionEnd;
+    if(e.keyCode === 9) { // tab was pressed
+        console.log(e);
+        // get caret position/selection
+        var start = this.selectionStart;
+        var end = this.selectionEnd;
 
-    //     var value = $(this).val();
+        var value = $(this).val();
 
-    //     // set textarea value to: text before caret + tab + text after caret
-    //     $(this).val(value.substring(0, start)
-    //         + "\t"
-    //         + value.substring(end));
+        // set textarea value to: text before caret + tab + text after caret
+        $(this).val(value.substring(0, start)
+            + "\t"
+            + value.substring(end));
 
-    //     // put caret at right position again (add one for the tab)
-    //     this.selectionStart = this.selectionEnd = start + 1;
+        // put caret at right position again (add one for the tab)
+        this.selectionStart = this.selectionEnd = start + 1;
 
-    //     // prevent the focus lose
-    //     e.preventDefault();
-    // }});
+        // prevent the focus lose
+        e.preventDefault();
+    }});
 }
 // END register listeners
 
@@ -199,45 +221,49 @@ function convertAll() {
     $(gist_embed());
 }
 
-function markdownInput() {
-    var markdown = $(this).val();
-    if (lastText == markdown) { return; }
+function onMarkdownInput() {
 
-    var preview = $(this).siblings(".preview");
-    var html = converter.makeHtml(markdown);
-    preview.html(html);
+    var $this = $(this);
 
-    preview.find("pre > code").each(function (i,e) { hljs.highlightBlock(e); });
-
-    $(gist_embed());
-}
-
-function onAnswerInput() {
-    if (lastText == $("#answer-edit").val()) {
-        return;
+    if(converterTimer) {
+        window.clearTimeout(converterTimer);
+        converterTimer = undefined;
     }
-    lastText = $("#answer-edit").val();
-    var text = converter.makeHtml(lastText);
-    $("#answer-preview").html(text);  //  Access-Control-Allow-Origin
 
-    // highlight code
-    $("#answer-preview > pre > code").each(function (i, e) { hljs.highlightBlock(e); });
+    var timeUntilConvert = processingTime;
 
-    // embed gist
-    $(gist_embed());
-}
-
-function onAskInput() {
-    if (lastText == $("#ask-edit").val()) {
-        return;
+    if (timeUntilConvert > maxDelay) {
+        timeUntilConvert = maxDelay;
     }
-    lastText = $("#ask-edit").val();
-    var text = converter.makeHtml(lastText);
-    $("#ask-preview").html(text);
+    if (timeUntilConvert < minDelay) {
+        timeUntilConvert = minDelay;
+    }
 
-    $("#ask-preview > pre > code").each(function (i, e) { hljs.highlightBlock(e); });
+    converterTimer = window.setTimeout(function() {    
 
-    $(gist_embed());
+        var startTime = new Date().getTime();
+
+
+        var markdown = $this.val();
+        if (lastText == markdown) { return; }
+
+        var preview = $this.siblings(".preview");
+        var html = converter.makeHtml(markdown);
+        preview.html(html);
+
+        preview.find("pre > code").each(function (i,e) { hljs.highlightBlock(e); });
+
+        $(gist_embed());
+
+        var endTime = new Date().getTime();
+
+        processingTime = endTime - startTime;
+
+        console.log("startTime = " + startTime);
+        console.log("processingTime = " + processingTime);
+
+    }, timeUntilConvert);
+
 }
 
 $(document).ready(function () {

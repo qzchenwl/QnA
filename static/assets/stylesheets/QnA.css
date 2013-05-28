@@ -70,6 +70,10 @@ h5 {
     overflow: auto;
 }
 
+.post textarea.markdown {
+    width: 685px;
+}
+
 .post-menu a {
     background-color: #e5e5e5;
     padding: 1px;
@@ -105,7 +109,7 @@ pre {
     border-style: none;
 }
 
-.preview-pane {
+.preview {
     width: 100%;
     overflow: auto;
     background-color: white;
@@ -118,7 +122,6 @@ pre {
 }
 
 .edit-pane {
-    display:block;
     height: 300px;
     margin-bottom: 10px;
 }
@@ -136,6 +139,18 @@ pre {
     margin: 0;
 }
 
-textarea {
+textarea, pre, code {
     border-radius: 0;
+    font-family: Source Code Pro, Monaco, Menlo, Consolas, "Courier New", monospace;
 }
+
+.top-right {
+    top: 10px;
+    right: 10px;
+    position: absolute;
+}
+
+.clickme:hover {
+    zoom: 1.2;
+}
+
