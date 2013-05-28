@@ -6,7 +6,7 @@ var question_answers;
 // markdown and highlight
 var converter = new Showdown.converter;
 var maxDelay = 3000; // ms
-var minDelay = 200;
+var minDelay = 100;
 var processingTime = 0;
 var lastText;
 var converterTimer;
