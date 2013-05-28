@@ -32,14 +32,14 @@ function listQuestions(query_data) {
     // hideMain();
     $("#question-list").show();
 
-    $.getJSON("/question-list", query_data, renderQuestions);
+    $.getJSON("/question-list", query_data, renderQuestions).fail(function(data) { alert('Ooops'); });
 }
 
 function showQuestion(query_data) {
     setLocation(query_data, 'question');
     hideMain();
     $("#question-page").show();
-    $.getJSON("/question-answers", query_data, renderQuestionPage);
+    $.getJSON("/question-answers", query_data, renderQuestionPage).fail(function(data) { alert('Ooops'); });
 }
 
 function askQuestion() {
@@ -68,6 +68,7 @@ function setLocation(query_data, where) {
 
 // START render pages
 function renderQuestions(data) {
+    console.log("renderQuestions");
     questions.clear();
     questions.render(data.questions);
     // render pagination
@@ -104,35 +105,17 @@ function renderQuestionPage(data) {
 // END render pages
 
 // START register listeners
-function registerAll() {
-    console.log("registerAll");
-    $("textarea.markdown").keyup(onMarkdownInput);
+function registerOnce() {
 
     $("#ask-form").submit(function(e){
         e.preventDefault();
-        $.getJSON('/ask-question', $(this).serialize(), showQuestion);
+        $.getJSON('/ask-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
     });
 
     $("#answer-form").submit(function(e){
         e.preventDefault();
-        $.getJSON('/answer-question', $(this).serialize(), showQuestion);
+        $.getJSON('/answer-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
     });
-
-    $(".update-question").submit(function(e){
-        e.preventDefault();
-        $.getJSON('/update-question', $(this).serialize(), showQuestion);
-    });
-
-    $(".update-answer").submit(function(e){
-        e.preventDefault();
-        $.getJSON('/update-answer', $(this).serialize(), showQuestion);
-    });
-
-    $(".edit").click(function(){
-        $(this).parent().siblings(".post").find(".edit-pane, .update").show();
-        $(this).parent().siblings(".post").find(".edit-pane").focus();
-        return false;
-    })
 
     $("#show-ask-page").click(function() {
         askQuestion();
@@ -144,17 +127,10 @@ function registerAll() {
         return false;
     });
 
-    $(".question-link").click(function(){
-        var id = $(this).attr("data");
-        showQuestion({id: id});
-        return false;
-    });
-
-    // allow tab for textarea
-    $("textarea").keydown(function(e) {
+    $("#ask-edit").keyup(onMarkdownInput);
+    $("#ask-edit").keydown(function(e) {
 
     if(e.keyCode === 9) { // tab was pressed
-        console.log(e);
         // get caret position/selection
         var start = this.selectionStart;
         var end = this.selectionEnd;
@@ -171,6 +147,83 @@ function registerAll() {
 
         // prevent the focus lose
         e.preventDefault();
+        return false;
+    }});
+}
+
+function registerAll() {
+    console.log($(this));
+    console.log("registerAll");
+    $("textarea.markdown").not("#ask-edit").keyup(onMarkdownInput);
+
+
+    $(".update-question").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/update-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
+    });
+
+    $(".update-answer").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/update-answer', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
+    });
+
+    $(".edit").click(function(){
+        $(this).parent().siblings(".post").find(".edit-pane, .update").show();
+        $(this).parent().siblings(".post").find(".edit-pane").focus();
+        return false;
+    });
+
+    $(".question .upvote").click(function(){
+        var id = $(this).attr("data");
+        $.getJSON('/vote-question', "vote=1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        return false;
+    });
+    $(".question .downvote").click(function(){
+        var id = $(this).attr("data");
+        $.getJSON('/vote-question', "vote=-1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        return false;
+    });
+
+    $(".answer .upvote").click(function(){
+        var id = $(this).attr("data");
+        $.getJSON('/vote-answer', "vote=1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        return false;
+    });
+    $(".answer .downvote").click(function(){
+        var id = $(this).attr("data");
+        $.getJSON('/vote-answer', "vote=-1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        return false;
+    });
+
+
+
+    $(".question-link").click(function(){
+        var id = $(this).attr("data");
+        showQuestion({id: id});
+        return false;
+    });
+
+    // allow tab for textarea
+    $("textarea").not("#ask-edit").keydown(function(e) {
+
+    if(e.keyCode === 9) { // tab was pressed
+        // get caret position/selection
+        var start = this.selectionStart;
+        var end = this.selectionEnd;
+
+        var value = $(this).val();
+
+        // set textarea value to: text before caret + tab + text after caret
+        $(this).val(value.substring(0, start)
+            + "\t"
+            + value.substring(end));
+
+        // put caret at right position again (add one for the tab)
+        this.selectionStart = this.selectionEnd = start + 1;
+
+        // prevent the focus lose
+        e.preventDefault();
+        return false;
     }});
 }
 // END register listeners
@@ -218,10 +271,14 @@ function convertAll() {
         });
     });
     highlightAll();
-    $(gist_embed());
+    console.log("convertAll1111");
+    var body = $("body");
+    $(gist_embed(body));
+    console.log("gist_embed");
 }
 
 function onMarkdownInput() {
+    console.log("onMarkdownInput");
 
     var $this = $(this);
 
@@ -253,7 +310,7 @@ function onMarkdownInput() {
 
         preview.find("pre > code").each(function (i,e) { hljs.highlightBlock(e); });
 
-        $(gist_embed());
+        $(gist_embed(preview));
 
         var endTime = new Date().getTime();
 
@@ -266,10 +323,74 @@ function onMarkdownInput() {
 
 }
 
+// login logout
+function logInOut() {
+    navigator.id.watch({
+        loggedInUser: getCookie('email'),
+        onlogin: function(assertion) {
+            $.ajax({
+                type: 'POST',
+                url: '/auth/login',
+                data: {assertion: assertion},
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    $("#signout").show();
+                    $("#signin").hide();
+                }});
+        },
+        onlogout: function() {
+            $.ajax({
+                type: 'POST',
+                url: '/auth/logout',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    $("#signout").hide();
+                    $("#signin").show();
+                }
+            })
+        }
+    });
+    $("#signin").click(function() {
+        navigator.id.request();
+        return false;
+    });
+    $("#signout").click(function() {
+        navigator.id.logout();
+        return false;
+    });
+
+}
+
+function setCookie(name,value)
+{
+  var Days = 30; //此 cookie 将被保存 30 天
+  var exp  = new Date();    //new Date("December 31, 9998");
+  exp.setTime(exp.getTime() + Days*24*60*60*1000);
+  document.cookie = name + "="+ escape(value) +";expires="+ exp.toGMTString();
+}
+function getCookie(name)
+{
+  var arr = document.cookie.match(new RegExp("(^| )"+name+"=([^;]*)(;|$)"));
+  if(arr != null) return unescape(arr[2]); return null;
+}
+function delCookie(name)
+{
+  var exp = new Date();
+  exp.setTime(exp.getTime() - 1);
+  var cval=getCookie(name);
+  if(cval!=null) document.cookie=name +"="+cval+";expires="+exp.toGMTString();
+}
+
+
 $(document).ready(function () {
     console.log('window load');
     initTemplate();
     buildMap();
     getPathAndParameter();
-    registerAll();
+    registerOnce();
+    logInOut();
 });
+
+

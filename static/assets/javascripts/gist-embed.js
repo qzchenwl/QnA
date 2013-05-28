@@ -1,10 +1,10 @@
 //author: Blair Vanderhoof
 //https://github.com/blairvanderhoof/gist-embed
-var gist_embed = function(){
+var gist_embed = function(e){
     var gistMarkerId = 'gist-';
 
     //find all code elements containing "gist-" the id attribute.
-    $('code[id*="'+gistMarkerId+'"]').each(function(){
+    e.find('code[id*="'+gistMarkerId+'"]').each(function(){
         var $elem = $(this),
             id,
             url,
