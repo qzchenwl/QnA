@@ -5,6 +5,7 @@ import re
 import requests
 from datetime import datetime
 from pymongo.objectid import ObjectId
+from bson.code import Code
 
 web.config.debug = False
 urls = (
@@ -15,6 +16,7 @@ urls = (
 
     '/question-list', 'question_list',
     '/question-answers', 'question_answers',
+    '/tags', 'tags',
 
     '/ask-question', 'ask_question',
     '/answer-question', 'answer_question',
@@ -91,6 +93,29 @@ class question_answers:
         question['id'] = question['_id']
         return json.dumps({'question_answers': question}, cls=CJsonEncoder)
 
+class tags:
+    def GET(self):
+        map = Code("function () {"
+           "  this.tags.forEach(function(z) {"
+           "    emit(z, 1);"
+           "  });"
+           "}")
+
+        reduce = Code("function (key, values) {"
+              "  var total = 0;"
+              "  for (var i = 0; i < values.length; i++) {"
+              "    total += values[i];"
+              "  }"
+              "  return total;"
+              "}")
+
+        result = db.map_reduce(map, reduce, "tags")
+
+        tags = []
+        for doc in result.find().sort(u'value', pymongo.DESCENDING):
+            tags.append({doc[u'_id']: doc[u'value']})
+
+        return json.dumps({'tags': tags})
 
 class ask_question:
     def GET(self):

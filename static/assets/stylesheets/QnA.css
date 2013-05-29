@@ -23,7 +23,7 @@ h5 {
     padding: 10px;
     width: 100%;
     background-color: white;
-    border: 1px rgba(128, 128, 128, 0.39) solid;
+    box-shadow: 0 0 5px #888;
 }
 
 .vote {
@@ -61,7 +61,7 @@ h5 {
     padding: 10px;
     width: 100%;
     background-color: white;
-    border: 1px rgba(128, 128, 128, 0.39) solid;
+    box-shadow: 0 0 5px #888;
 }
 
 .post {

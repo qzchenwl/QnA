@@ -112,10 +112,7 @@ function registerOnce() {
         $.getJSON('/ask-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
     });
 
-    $("#answer-form").submit(function(e){
-        e.preventDefault();
-        $.getJSON('/answer-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
-    });
+
 
     $("#show-ask-page").click(function() {
         askQuestion();
@@ -156,6 +153,10 @@ function registerAll() {
     console.log("registerAll");
     $("textarea.markdown").not("#ask-edit").keyup(onMarkdownInput);
 
+    $("#answer-form").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/answer-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
+    });
 
     $(".update-question").submit(function(e){
         e.preventDefault();
