@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import web
 import sys
+import math
 import pymongo
 import json
 import re
@@ -33,6 +35,7 @@ app = web.application(urls, globals())
 session = web.session.Session(app, web.session.DiskStore('sessions'))
 
 audience = ''
+PAGE_SIZE = 10
 connection = pymongo.MongoClient()
 db = connection['QnA']['questions']
 
@@ -87,9 +90,17 @@ class test:
 
 class question_list:
     def GET(self):
-        questions = list(db.find().sort('update_time', pymongo.DESCENDING))
+        q = web.input()
+        page = 1
+        query = {}
+        if q.has_key('page'): page = max(1, int(q['page']))
+        if q.has_key('tag'): query['tags'] = q['tag']
+        if q.has_key('unanswered'): query['answers.0'] = {'$exists': False}
+        cursor = db.find(query).sort('update_time', pymongo.DESCENDING)
+        page_count = int(math.ceil(cursor.count()/float(PAGE_SIZE)))
+        questions = list(cursor.skip((page-1)*PAGE_SIZE).limit(PAGE_SIZE))
         for q in questions: q['id'] = q['_id']
-        return json.dumps({'questions': questions}, cls=CJsonEncoder)
+        return json.dumps({'questions': questions, 'page_count': page_count, 'current_page': page}, cls=CJsonEncoder)
 
 
 class question_answers:
@@ -118,9 +129,10 @@ class tags:
 
         result = db.map_reduce(map, reduce, "tags")
 
-        tags = []
-        for doc in result.find().sort(u'value', pymongo.DESCENDING):
-            tags.append({doc[u'_id']: doc[u'value']})
+        tags = list(result.find().sort('value', pymongo.DESCENDING))
+        for tag in tags:
+            tag['tag'] = tag['_id']
+            tag['count'] = tag['value']
 
         return json.dumps({'tags': tags})
 
@@ -166,7 +178,12 @@ class update_question:
     def GET(self):
         checkLogin()
         q = web.input()
-        db.update({'_id': ObjectId(q['id'])}, {'$set': {'content': q['content']}})
+        new_question = {}
+        if q.has_key('title'): new_question['title'] = q['title']
+        if q.has_key('content'): new_question['content'] = q['content']
+        if q.has_key('tags'): new_question['tags'] = filter(lambda x: x != "", re.split('\s*,\s*', q['tags']))
+
+        db.update({'_id': ObjectId(q['id'])}, {'$set': new_question})
         return json.dumps({'id': q['id']}, cls=CJsonEncoder)
 
 

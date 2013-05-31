@@ -67,6 +67,12 @@ form {
     box-shadow: 0 0 5px #888;
 }
 
+#tags {
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0 0 5px #888;
+}
+
 .post {
     margin-left: 60px;
     overflow: auto;
@@ -160,5 +166,15 @@ textarea, pre, code {
 }
 .btn, .label, input[type="text"], textarea {
     border-radius: 0px;
+}
+
+#signin, #signout {
+    margin-top: 5px;
+    line-height: 20px;
+    padding: 4px 6px;
+    color: white;
+}
+#signin img {
+    height: 100%;
 }
 

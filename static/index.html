@@ -29,20 +29,19 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
-             <ul class="nav nav-pills pull-left">
+             <ul id="nav" class="nav nav-pills pull-left">
                 <li id="show-question-list" class="active"><a href="#">Questions</a>
                 </li>
-                <li><a href="#">Tags</a>
+                <li id="show-tags"><a href="#">Tags</a>
                 </li>
-                <li><a href="#">Unanswered</a>
+                <li id="show-unanswered"><a href="#">Unanswered</a>
                 </li>
             </ul>
             <a id="show-ask-page" class="btn btn-primary pull-left" href="#">Ask</a>
 
-            <ul class="nav pull-right">
-                <li><a id="signin" href="#"><img src="https://developer.mozilla.org/files/3969/plain_sign_in_blue.png"/></a></li>
-                <li><a id="signout" style="display:none;" href="#">Signout</a></li>
-            </ul>
+            <a id="signin" href="#" class="pull-right"><img src="https://developer.mozilla.org/files/3969/plain_sign_in_blue.png"/></a>
+            <a id="signout" href="#" class="pull-right" style="display:none;">Signout</a>
+
         </div>
     </div>
 </div>
@@ -71,7 +70,7 @@
                         <div class="summary">
                             <h5><a href="#" class="question-link" data="{{id}}">{{title}}</a></h5>
                             <div class="excerpt">{{content}}</div>
-                            <div class="tags pull-left" data-template-for="tags"><a href="#" class="post-tag">{{.}}</a></div>
+                            <div class="tags pull-left" data-template-for="tags"><a href="#" class="post-tag" data="{{.}}">{{.}}</a></div>
                             <div class="started pull-right">
                                 <div class="userinfo">
                                     <div class="user-action-time">{{ update_time }}</div>
@@ -84,13 +83,18 @@
 
                 <div class="pagination">
                     <ul id="pagination">
-                        <li data-template class="{{ class }}"  style="display: none;"><a href="{{ href | default '#' }}">{{ text }}</a>
+                        <li data-template class="{{ class }}"  style="display: none;"><a href="{{ href | default '#' }}" data="{{ page }}">{{ text }}</a>
                         </li>
                     </ul>
                 </div>
             </div>
             <!-- PAGEend: question-list  -->
-
+            <!-- PAGE: tags -->
+            <div id="tags">
+                <div><div class="tags pull-left" data-template><a href="#" data="{{ tag }}">{{ tag }}<span class="multi">  {{ count }}</span></a></div></div>
+                <div class="clearfix"></div>
+            </div>
+            <!-- PAGEend: tags-->
             <!-- PAGE: question -->
             <div id="question-page">
                 <div id="question_answers" data-template style="display:none;">
@@ -103,11 +107,13 @@
                         </div>
                         <div class="post">
                             <form class="update-question">
+                                <input type="text" name="title" class="editor" value="{{title}}" style="display: none;"/>
                                 <div class="preview"></div>
                                 <textarea name="content" class="markdown edit-pane hide" data="{{ id }}">{{ content }}</textarea>
+                                <input type="text" name="tags" class="editor" value="{{tags | join ,}}" style="display: none;"/>
                                 <input type="hidden" name="id" value="{{ id }}"/>
                                 <div style="width:100%;text-align:right;margin-bottom:20px;" class="update hide">
-                                    <input type="submit" class="btn btn-primary" value="Update" />
+                                    <input type="submit" class="btn btn-primary" value="Update" style="display: none;"/>
                                 </div>
                             </form>
 
@@ -120,9 +126,8 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="clearfix"></div>
                         <div class="top-right"><a href="#" class="edit"><i class="icon-pencil"></i></a></div>
-
                     </div>
 
                     <!-- answer div -->
@@ -162,7 +167,7 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="clearfix"></div>
                         <div class="top-right"><a href="#" class="edit"><i class="icon-pencil"></i></a></div>
                     </div>
 
