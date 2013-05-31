@@ -80,7 +80,7 @@ function setLocation(query_data, where) {
     if (!isBlank(queryString)) {
         queryString = '?' + queryString;
     }
-    window.location.hash = '#!/' + where + '/' + buildQueryString(query_data);
+    window.location.hash = '#!/' + where + '/' + queryString;
 }
 
 // END display pages
@@ -210,9 +210,24 @@ function registerAll() {
         $.getJSON('/update-answer', $(this).serialize(), showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
     });
 
+    $(".question-comment-form").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/comment-question', $(this).serialize(), showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
+    });
+
+    $(".answer-comment-form").submit(function(e){
+        e.preventDefault();
+        $.getJSON('/comment-answer', $(this).serialize(), showQuestion).fail(function(jqXHR) {alert(jqXHR.responseText); });
+    });
+
     $(".edit").click(function(){
         $(this).parent().siblings(".post").find(".edit-pane, .update, input").toggle();
         $(this).parent().siblings(".post").find(".edit-pane").focus();
+        return false;
+    });
+
+    $(".submit-comment").click(function() {
+        $(this).siblings("form").toggle();
         return false;
     });
 
@@ -392,7 +407,7 @@ function onMarkdownInput() {
 // login logout
 function logInOut() {
     navigator.id.watch({
-        loggedInUser: getCookie('email'),
+        loggedInUser: getCookie('user'),
         onlogin: function(assertion) {
             $.ajax({
                 type: 'POST',

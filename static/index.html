@@ -74,7 +74,7 @@
                             <div class="started pull-right">
                                 <div class="userinfo">
                                     <div class="user-action-time">{{ update_time }}</div>
-                                    <div class="user-name">{{who}}</div>
+                                    <div class="user-name">{{ author}}</div>
                                 </div>
                             </div>
                         </div>
@@ -122,12 +122,25 @@
                             <div class="started pull-right">
                                 <div class="userinfo">
                                     <div class="user-action-time">{{ update_time }}</div>
-                                    <div class="user-name">{{ who }}</div>
+                                    <div class="user-name">{{ author }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="clearfix"></div>
                         <div class="top-right"><a href="#" class="edit"><i class="icon-pencil"></i></a></div>
+                        <div class="comments">
+                            <div>
+                                <div  data-template-for="comments" class="comment">{{ author | replace '@.+', ':' }} {{ content }}</div>
+                            </div>
+                            <a href="#" class="submit-comment">comment</a>
+                            <form class="hide question-comment-form" style="display: none;">
+                                <input name="question_id" type="hidden" value="{{ id }}" />
+                                <textarea name="content" class="pull-left"
+                                          style="margin: 0px 0px 10px; width: 545px; height: 40px;"></textarea>
+                                <input type="submit" value="Comment" class="pull-left btn btn-primary" style="margin-left: 5px;">
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- answer div -->
@@ -156,22 +169,33 @@
                                 <textarea name="content" class="markdown edit-pane hide" data="{{ id }}">{{ content }}</textarea>
                                 <input name="id" type="hidden" value="{{ id }}" />
                                 <div style="width:100%;text-align:right;margin-bottom:20px;" class="update hide">
-                                    <input type="submit" class="btn btn-primary" value="Update"/>
+                                    <input type="submit" class="btn btn-primary" value="Update" style="display: none;"/>
                                 </div>
                             </form>
 
                             <div class="started pull-right">
                                 <div class="userinfo">
                                     <div class="user-ation-time">{{ update_time }}</div>
-                                    <div class="user-name">{{ who }}</div>
+                                    <div class="user-name">{{ author }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="clearfix"></div>
                         <div class="top-right"><a href="#" class="edit"><i class="icon-pencil"></i></a></div>
+                        <div class="comments">
+                            <div>
+                                <div  data-template-for="comments" class="comment">{{ author | replace '@.+', ':' }} {{ content }}</div>
+                            </div>
+                            <a href="#" class="submit-comment">comment</a>
+                            <form class="hide answer-comment-form" style="display: none;">
+                                <input name="answer_id" type="hidden" value="{{ id }}" />
+                                <textarea name="content" class="pull-left"
+                                          style="margin: 0px 0px 10px; width: 545px; height: 40px;"></textarea>
+                                <input type="submit" value="Comment" class="pull-left btn btn-primary" style="margin-left: 5px;">
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
                     </div>
-
-
 
                 </div>
             </div>

@@ -82,6 +82,18 @@ form {
     width: 98.4%;
 }
 
+.comments {
+    padding-left: 60px;
+}
+
+.comment {
+    background-color: rgb(241, 241, 241);
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    border-bottom: 1px dashed rgb(204, 204, 204);
+}
+
 .post-menu a {
     background-color: #e5e5e5;
     padding: 1px;

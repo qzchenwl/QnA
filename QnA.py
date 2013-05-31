@@ -29,6 +29,9 @@ urls = (
 
     '/vote-question', 'vote_question',
     '/vote-answer', 'vote_answer',
+
+    '/comment-question', 'comment_question',
+    '/comment-answer', 'comment_answer',
 )
 
 app = web.application(urls, globals())
@@ -51,7 +54,7 @@ class CJsonEncoder(json.JSONEncoder):
 
 
 def checkLogin():
-    if 'email' not in session:
+    if 'user' not in session:
         raise web.unauthorized
 
 
@@ -70,7 +73,7 @@ class auth_login:
         if resp.ok:
             verification_data = json.loads(resp.content)
             if verification_data['status'] == 'okay':
-                session.email = verification_data['email']
+                session.user = verification_data['email']
             return resp.content
 
         raise web.internalerror(resp.content)
@@ -78,14 +81,14 @@ class auth_login:
 
 class auth_logout:
     def POST(self):
-        web.setcookie('email', '', expires=-1)
+        web.setcookie('user', '', expires=-1)
         session.kill()
         return 'logged out'
 
 
 class test:
     def GET(self):
-        return session.email
+        return session.user
 
 
 class question_list:
@@ -144,7 +147,7 @@ class ask_question:
         question = {'title': q['title'],
                     'content': q['content'],
                     'tags': filter(lambda x: x != "", re.split('\s*,\s*', q['tags'])),
-                    'who': session.email,
+                    'author': session.user,
                     'update_time': datetime.now()
         }
         qid = db.insert(question)
@@ -158,12 +161,41 @@ class answer_question:
         answer = {
             'id': ObjectId(),
             'content': q['content'],
-            'who': session.email,
+            'author': session.user,
             'update_time': datetime.now()
         }
         db.update({'_id': ObjectId(q['question_id'])}, {'$push': {'answers': answer}})
         return json.dumps({'id': q['question_id']})
 
+
+class comment_question:
+    def GET(self):
+        checkLogin()
+        q = web.input()
+        comment = {
+            'id': ObjectId(),
+            'content': q['content'],
+            'author': session.user,
+            'update_time': datetime.now()
+        }
+        db.update({'_id': ObjectId(q['question_id'])}, {'$push': {'comments': comment}})
+        return json.dumps({'id': q['question_id']})
+
+
+class comment_answer:
+    def GET(self):
+        checkLogin()
+        q = web.input()
+        comment = {
+            'id': ObjectId(),
+            'content': q['content'],
+            'author': session.user,
+            'update_time': datetime.now()
+        }
+        oid = ObjectId(q['answer_id'])
+        db.update({'answers.id': oid}, {'$addToSet': {'answers.$.comments': comment}})
+        question = db.find_one({'answers.id': oid})
+        return json.dumps({'id': question['_id']}, cls=CJsonEncoder)
 
 class update_answer:
     def GET(self):
@@ -192,13 +224,13 @@ class vote_question:
         checkLogin()
         q = web.input()
         oid = ObjectId(q['id'])
-        email = session.email
+        user = session.user
         if q['vote'] == "1":
-            db.update({'_id': oid}, {'$pull': {'down_voters': email}})
-            db.update({'_id': oid}, {'$addToSet': {'up_voters': email}})
+            db.update({'_id': oid}, {'$pull': {'down_voters': user}})
+            db.update({'_id': oid}, {'$addToSet': {'up_voters': user}})
         else:
-            db.update({'_id': oid}, {'$pull': {'up_voters': email}})
-            db.update({'_id': oid}, {'$addToSet': {'down_voters': email}})
+            db.update({'_id': oid}, {'$pull': {'up_voters': user}})
+            db.update({'_id': oid}, {'$addToSet': {'down_voters': user}})
         question = db.find_one({'_id': oid})
         vote = len(question['up_voters']) - len(question['down_voters'])
         db.update({'_id': oid}, {'$set': {'vote_count': vote}})
@@ -210,13 +242,13 @@ class vote_answer:
         checkLogin()
         q = web.input()
         oid = ObjectId(q['id'])
-        email = session.email
+        user = session.user
         if q['vote'] == "1":
-            db.update({'answers.id': oid}, {'$pull': {'answers.$.down_voters': email}})
-            db.update({'answers.id': oid}, {'$addToSet': {'answers.$.up_voters': email}})
+            db.update({'answers.id': oid}, {'$pull': {'answers.$.down_voters': user}})
+            db.update({'answers.id': oid}, {'$addToSet': {'answers.$.up_voters': user}})
         else:
-            db.update({'answers.id': oid}, {'$pull': {'answers.$.up_voters': email}})
-            db.update({'answers.id': oid}, {'$addToSet': {'answers.$.down_voters': email}})
+            db.update({'answers.id': oid}, {'$pull': {'answers.$.up_voters': user}})
+            db.update({'answers.id': oid}, {'$addToSet': {'answers.$.down_voters': user}})
         answer = db.find_one({'answers.id': oid}, {'answers': {'$slice': 1}})['answers'][0]
         vote = len(answer['up_voters']) - len(answer['down_voters'])
         db.update({'answers.id': oid}, {'$set': {'answers.$.vote_count': vote}})
