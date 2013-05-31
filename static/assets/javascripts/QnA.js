@@ -32,14 +32,14 @@ function listQuestions(query_data) {
     // hideMain();
     $("#question-list").show();
 
-    $.getJSON("/question-list", query_data, renderQuestions).fail(function(data) { alert('Ooops'); });
+    $.getJSON("/question-list", query_data, renderQuestions).fail(function(jqXHR) { alert(jqXHR.responseText); });
 }
 
 function showQuestion(query_data) {
     setLocation(query_data, 'question');
     hideMain();
     $("#question-page").show();
-    $.getJSON("/question-answers", query_data, renderQuestionPage).fail(function(data) { alert('Ooops'); });
+    $.getJSON("/question-answers", query_data, renderQuestionPage).fail(function(jqXHR) { alert(jqXHR.responseText); });
 }
 
 function askQuestion() {
@@ -109,18 +109,16 @@ function registerOnce() {
 
     $("#ask-form").submit(function(e){
         e.preventDefault();
-        $.getJSON('/ask-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
-    });
-
-
-
-    $("#show-ask-page").click(function() {
-        askQuestion();
-        return false;
+        $.getJSON('/ask-question', $(this).serialize(), showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
     });
 
     $("#show-question-list").click(function(){
         listQuestions();
+        return false;
+    });
+
+    $("#show-ask-page").click(function() {
+        askQuestion();
         return false;
     });
 
@@ -155,17 +153,17 @@ function registerAll() {
 
     $("#answer-form").submit(function(e){
         e.preventDefault();
-        $.getJSON('/answer-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/answer-question', $(this).serialize(), showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
     });
 
     $(".update-question").submit(function(e){
         e.preventDefault();
-        $.getJSON('/update-question', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/update-question', $(this).serialize(), showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
     });
 
     $(".update-answer").submit(function(e){
         e.preventDefault();
-        $.getJSON('/update-answer', $(this).serialize(), showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/update-answer', $(this).serialize(), showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
     });
 
     $(".edit").click(function(){
@@ -176,23 +174,23 @@ function registerAll() {
 
     $(".question .upvote").click(function(){
         var id = $(this).attr("data");
-        $.getJSON('/vote-question', "vote=1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/vote-question', "vote=1&id=" + id, showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
         return false;
     });
     $(".question .downvote").click(function(){
         var id = $(this).attr("data");
-        $.getJSON('/vote-question', "vote=-1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/vote-question', "vote=-1&id=" + id, showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
         return false;
     });
 
     $(".answer .upvote").click(function(){
         var id = $(this).attr("data");
-        $.getJSON('/vote-answer', "vote=1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/vote-answer', "vote=1&id=" + id, showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
         return false;
     });
     $(".answer .downvote").click(function(){
         var id = $(this).attr("data");
-        $.getJSON('/vote-answer', "vote=-1&id=" + id, showQuestion).fail(function(data) { alert('Ooops'); });
+        $.getJSON('/vote-answer', "vote=-1&id=" + id, showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
         return false;
     });
 
@@ -335,35 +333,40 @@ function logInOut() {
                 data: {assertion: assertion},
                 dataType: 'json',
                 success: function(data) {
-                    console.log(data);
-                    $("#signout").show();
-                    $("#signin").hide();
+                    if (data.status == "okay") {
+                        console.log(data);
+                        $("#signout").show();
+                        $("#signin").hide();
+                    } else {
+                        console.log(JSON.stringify(data));
+                        alert(JSON.stringify(data));
+                    }
                 }});
         },
         onlogout: function() {
+            // 一个用户已经登出！这是你需要做的：
+            // 销毁用户的会话并重定向用户或做后端的调用。
+            // 同样，让 loggedInUser 在下个页面加载时变为 null。
+            // （这是一个字面的 JavaScript null。不是 false、 0 或 undefined。null。)
             $.ajax({
                 type: 'POST',
-                url: '/auth/logout',
-                dataType: 'json',
-                success: function(data) {
-                    console.log(data);
-                    $("#signout").hide();
-                    $("#signin").show();
-                }
-            })
-        }
+                url: '/auth/logout', // 这是你网站上的一个 URL
+                success: function(res, status, xhr) { window.location.reload(); },
+                error: function(res, status, xhr) { alert("登出失败" + res); }
+            });}
     });
     $("#signin").click(function() {
         navigator.id.request();
         return false;
     });
     $("#signout").click(function() {
+        console.log("logout click");
         navigator.id.logout();
         return false;
     });
 
 }
-
+// cookie
 function setCookie(name,value)
 {
   var Days = 30; //此 cookie 将被保存 30 天
@@ -392,6 +395,13 @@ $(document).ready(function () {
     getPathAndParameter();
     registerOnce();
     logInOut();
+    (function() {
+  var proxied = window.alert;
+  window.alert = function() {
+    // do something here
+    return proxied.apply(this, arguments);
+  };
+})();
 });
 
 

@@ -10,6 +10,10 @@ h5 {
     margin: 0;
 }
 
+form {
+    margin:0;
+}
+
 .content {
 }
 
@@ -29,15 +33,16 @@ h5 {
 .vote {
     text-align: center;
     background-color: #eee;
-    margin-top: 5px;
 }
 
 .summary {
-    margin-left: 10px;
-    width: 700px;
+    margin-left: 65px;
     overflow: hidden;
 }
 
+.excerpt {
+    margin-bottom: 8px;
+}
 #question-list {
     display: block;
 }
@@ -56,22 +61,19 @@ h5 {
 
 .question, .answer, .edit-answer {
     position: relative;
-    float: left;
     margin-bottom: 30px;
     padding: 10px;
-    width: 100%;
     background-color: white;
     box-shadow: 0 0 5px #888;
 }
 
 .post {
-    margin-left: 10px;
-    width: 700px;
+    margin-left: 60px;
     overflow: auto;
 }
 
 .post textarea.markdown {
-    width: 685px;
+    width: 98.4%;
 }
 
 .post-menu a {
@@ -117,8 +119,7 @@ pre {
 }
 
 .editor {
-    width: 100%;
-    padding: 4px 0 4px 0;
+    width: 98.4%;
 }
 
 .edit-pane {
@@ -148,9 +149,16 @@ textarea, pre, code {
     top: 10px;
     right: 10px;
     position: absolute;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 10px;
+    background-color: rgb(231, 231, 231);
+    opacity: 0.3;
 }
-
-.clickme:hover {
-    zoom: 1.2;
+.top-right:hover {
+    opacity: 0.8;
+}
+.btn, .label, input[type="text"], textarea {
+    border-radius: 0px;
 }
 

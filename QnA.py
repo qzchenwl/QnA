@@ -1,4 +1,5 @@
 import web
+import sys
 import pymongo
 import json
 import re
@@ -44,6 +45,11 @@ class CJsonEncoder(json.JSONEncoder):
             return str(obj)
         else:
             return json.JSONEncoder.default(self, obj)
+
+
+def checkLogin():
+    if 'email' not in session:
+        raise web.unauthorized
 
 
 class index:
@@ -93,21 +99,22 @@ class question_answers:
         question['id'] = question['_id']
         return json.dumps({'question_answers': question}, cls=CJsonEncoder)
 
+
 class tags:
     def GET(self):
         map = Code("function () {"
-           "  this.tags.forEach(function(z) {"
-           "    emit(z, 1);"
-           "  });"
-           "}")
+                   "  this.tags.forEach(function(z) {"
+                   "    emit(z, 1);"
+                   "  });"
+                   "}")
 
         reduce = Code("function (key, values) {"
-              "  var total = 0;"
-              "  for (var i = 0; i < values.length; i++) {"
-              "    total += values[i];"
-              "  }"
-              "  return total;"
-              "}")
+                      "  var total = 0;"
+                      "  for (var i = 0; i < values.length; i++) {"
+                      "    total += values[i];"
+                      "  }"
+                      "  return total;"
+                      "}")
 
         result = db.map_reduce(map, reduce, "tags")
 
@@ -117,10 +124,10 @@ class tags:
 
         return json.dumps({'tags': tags})
 
+
 class ask_question:
     def GET(self):
-        if 'email' not in session:
-            raise web.internalerror('please login')
+        checkLogin()
         q = web.input()
         question = {'title': q['title'],
                     'content': q['content'],
@@ -134,8 +141,7 @@ class ask_question:
 
 class answer_question:
     def GET(self):
-        if 'email' not in session:
-            raise web.internalerror('please login')
+        checkLogin()
         q = web.input()
         answer = {
             'id': ObjectId(),
@@ -149,8 +155,7 @@ class answer_question:
 
 class update_answer:
     def GET(self):
-        if 'email' not in session:
-            raise web.internalerror('please login')
+        checkLogin()
         q = web.input()
         db.update({'answers.id': ObjectId(q['id'])}, {'$set': {'answers.$.content': q['content']}})
         question = db.find_one({'answers.id': ObjectId(q['id'])})
@@ -159,8 +164,7 @@ class update_answer:
 
 class update_question:
     def GET(self):
-        if 'email' not in session:
-            raise web.internalerror('please login')
+        checkLogin()
         q = web.input()
         db.update({'_id': ObjectId(q['id'])}, {'$set': {'content': q['content']}})
         return json.dumps({'id': q['id']}, cls=CJsonEncoder)
@@ -168,8 +172,7 @@ class update_question:
 
 class vote_question:
     def GET(self):
-        if 'email' not in session:
-            raise web.internalerror('please login')
+        checkLogin()
         q = web.input()
         oid = ObjectId(q['id'])
         email = session.email
@@ -187,8 +190,7 @@ class vote_question:
 
 class vote_answer:
     def GET(self):
-        if 'email' not in session:
-            raise web.internalerror('please login')
+        checkLogin()
         q = web.input()
         oid = ObjectId(q['id'])
         email = session.email
@@ -207,5 +209,9 @@ class vote_answer:
 
 
 if __name__ == '__main__':
-    audience = 'http://chenwl.local:8080'
+    port = '8080'
+    if len(sys.argv) > 1:
+        port = sys.argv[1]
+    audience = 'http://chenwl.local:' + port
+    print 'audience = ' + audience
     app.run()
