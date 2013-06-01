@@ -225,6 +225,16 @@ function registerAll() {
         $(this).parent().siblings(".post").find(".edit-pane").focus();
         return false;
     });
+    $(".delete-question").click(function(){
+        var id = $(this).attr('data');
+        $.getJSON('/delete-question', 'id=' + id, listQuestions).fail(function(jqXHR) { alert(jqXHR.responseText); });
+        return false;
+    });
+    $(".delete-answer").click(function(){
+        var id = $(this).attr('data');
+        $.getJSON('/delete-answer', 'id=' + id, showQuestion).fail(function(jqXHR) { alert(jqXHR.responseText); });
+        return false;
+    });
 
     $(".submit-comment").click(function() {
         $(this).siblings("form").toggle();

@@ -127,7 +127,10 @@
                             </div>
                         </div>
                         <div class="clearfix"></div>
-                        <div class="top-right"><a href="#" class="edit"><i class="icon-pencil"></i></a></div>
+                        <div class="top-right">
+                            <a href="#" class="edit"><i class="icon-pencil"></i></a>
+                            <a href="#" class="delete-question" data="{{ id }}"><i class="icon-trash"></i></a>
+                        </div>
                         <div class="comments">
                             <div>
                                 <div  data-template-for="comments" class="comment">{{ author | replace '@.+', ':' }} {{ content }}</div>
@@ -181,7 +184,10 @@
                             </div>
                         </div>
                         <div class="clearfix"></div>
-                        <div class="top-right"><a href="#" class="edit"><i class="icon-pencil"></i></a></div>
+                        <div class="top-right">
+                            <a href="#" class="edit"><i class="icon-pencil"></i></a>
+                            <a href="#" class="delete-answer" data="{{ id }}"><i class="icon-trash"></i></a>
+                        </div>
                         <div class="comments">
                             <div>
                                 <div  data-template-for="comments" class="comment">{{ author | replace '@.+', ':' }} {{ content }}</div>

@@ -32,6 +32,9 @@ urls = (
 
     '/comment-question', 'comment_question',
     '/comment-answer', 'comment_answer',
+
+    '/delete-question', 'delete_question',
+    '/delete-answer', 'delete_answer',
 )
 
 app = web.application(urls, globals())
@@ -164,7 +167,7 @@ class answer_question:
             'author': session.user,
             'update_time': datetime.now()
         }
-        db.update({'_id': ObjectId(q['question_id'])}, {'$push': {'answers': answer}})
+        db.update({'_id': ObjectId(q['question_id'])}, {'$push': {'answers': answer}, '$inc': {'answer_count': 1}})
         return json.dumps({'id': q['question_id']})
 
 
@@ -257,7 +260,8 @@ class vote_answer:
         else:
             db.update({'answers.id': oid}, {'$pull': {'answers.$.up_voters': user}})
             db.update({'answers.id': oid}, {'$addToSet': {'answers.$.down_voters': user}})
-        answer = db.find_one({'answers.id': oid}, {'answers': {'$slice': 1}})['answers'][0]
+        answer = db.find_one({'answers.id': oid}, {'_id': 0, 'answers.$': 1})['answers'][0]
+
         if answer.has_key('up_voters'):
             ups = len(answer['up_voters'])
         else:
@@ -271,6 +275,34 @@ class vote_answer:
         question = db.find_one({'answers.id': oid})
 
         return json.dumps({'id': question['_id']}, cls=CJsonEncoder)
+
+
+class delete_question:
+    def GET(self):
+        checkLogin()
+        q = web.input()
+        oid = ObjectId(q['id'])
+        user = session.user
+        result = db.remove({'_id': oid, 'author': user})
+        if result['n'] > 0:
+            return json.dumps({'status': 'ok'})
+        else:
+            raise web.HTTPError(status='412 Precondition Failed', headers={'Content-Type': 'application/json'}, data={'message': 'not your question'})
+
+class delete_answer:
+    def GET(self):
+        checkLogin()
+        q = web.input()
+        oid = ObjectId(q['id'])
+        user = session.user
+        question = db.find_one({'answers.id': oid}, {'_id': 1})
+        result = db.update({'answers.id': oid, 'answers.author': user}, {'$pull': {'answers': {'id': oid, 'author': user}}})
+        # return json.dumps(result)
+        if result['updatedExisting']:
+            return json.dumps({'id': question['_id']}, cls=CJsonEncoder)
+        else:
+            raise web.HTTPError(status='412 Precondition Failed', headers={'Content-Type': 'application/json'}, data={'message': 'not your answer'})
+
 
 
 if __name__ == '__main__':
