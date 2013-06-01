@@ -232,7 +232,15 @@ class vote_question:
             db.update({'_id': oid}, {'$pull': {'up_voters': user}})
             db.update({'_id': oid}, {'$addToSet': {'down_voters': user}})
         question = db.find_one({'_id': oid})
-        vote = len(question['up_voters']) - len(question['down_voters'])
+        if question.has_key('up_voters'):
+            ups = len(question['up_voters'])
+        else:
+            ups = 0
+        if question.has_key('down_voters'):
+            downs = len(question['down_voters'])
+        else:
+            downs = 0
+        vote = ups - downs
         db.update({'_id': oid}, {'$set': {'vote_count': vote}})
         return json.dumps({'id': q['id']}, cls=CJsonEncoder)
 
@@ -250,7 +258,15 @@ class vote_answer:
             db.update({'answers.id': oid}, {'$pull': {'answers.$.up_voters': user}})
             db.update({'answers.id': oid}, {'$addToSet': {'answers.$.down_voters': user}})
         answer = db.find_one({'answers.id': oid}, {'answers': {'$slice': 1}})['answers'][0]
-        vote = len(answer['up_voters']) - len(answer['down_voters'])
+        if answer.has_key('up_voters'):
+            ups = len(answer['up_voters'])
+        else:
+            ups = 0
+        if answer.has_key('down_voters'):
+            downs = len(answer['down_voters'])
+        else:
+            downs = 0
+        vote = ups - downs
         db.update({'answers.id': oid}, {'$set': {'answers.$.vote_count': vote}})
         question = db.find_one({'answers.id': oid})
 
